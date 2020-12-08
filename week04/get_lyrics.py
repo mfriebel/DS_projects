@@ -7,6 +7,8 @@ def get_lyrics_links(artist):
     lyrics_url = f"https://www.metrolyrics.com/{artist}-lyrics.html"
     http_request = requests.get(lyrics_url, headers=header)
 
+    if http_request.status_code == 404:
+        raise Exception(f'Artist name ("{artist}") can not be handled. Try it lower case and for several words use "-" to connect them.')
     # find each lyrics URL inside the artist page using RE and save to a list
     pattern = f'<a href=\"(.+-lyrics-{artist}\.html)\"'
     lyrics_links = re.findall(pattern, http_request.text)
@@ -15,10 +17,10 @@ def get_lyrics_links(artist):
 
 
 def download_lyrics_html(artist):
-    # Create new folder for a new artist    
-    os.mkdir(f'week04/artists/{artist}/')
     # retrive lyrics links of given artist
     lyric_links = get_lyrics_links(artist)
+    # Create new folder for a new artist    
+    os.mkdir(f'week04/artists/{artist}/')
     # Loop through lyrics URL list and write for each song a new html file 
     for url in lyric_links:
         time.sleep(1)
@@ -30,7 +32,10 @@ def download_lyrics_html(artist):
             f.close()
 
 artists = ['beatles', 'queen', 'xtc', 'solange', 'harry-nilsson', 'baxter-dury', 'david-bowie', 'jonathan-richman', 
-            'gang-of-four', 'clash', '10-cc', 'scott-walker', 'fleetwood-mac']
+            'gang-of-four', 'clash', '10-cc', 'scott-walker', 'fleetwood-mac', 'fela-kuti']
 
 for artist in artists:
-    download_lyrics_html(artist)
+    if artist in os.listdir('week04/artists/'):
+        None
+    else:
+        download_lyrics_html(artist)
