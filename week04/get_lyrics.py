@@ -20,14 +20,14 @@ def download_lyrics_html(artist):
     # retrive lyrics links of given artist
     lyric_links = get_lyrics_links(artist)
     # Create new folder for a new artist    
-    os.mkdir(f'week04/artists/{artist}/')
+    os.mkdir(f'artists/{artist}/')
     # Loop through lyrics URL list and write for each song a new html file 
     for url in lyric_links:
         time.sleep(1)
         song_title = re.findall(f'com/(.+)-lyrics-{artist}', url)[0]        # Get song title
         song_html= requests.get(url, headers=header)                         # Get song lyrics html
         #print(re.findall('<p class=\'verse\'>(.*)<br>|^(.*)</p>|^(.*)<br>', song_html.text))                             
-        with open(f'week04/artists/{artist}/{song_title}.html', 'w') as f:  # Write lyrics page to ".html" file
+        with open(f'artists/{artist}/{song_title}.html', 'w') as f:  # Write lyrics page to ".html" file
             f.write(song_html.text)
             f.close()
 
@@ -35,7 +35,7 @@ artists = ['beatles', 'queen', 'xtc', 'solange', 'harry-nilsson', 'baxter-dury',
             'gang-of-four', 'clash', '10-cc', 'scott-walker', 'fleetwood-mac', 'fela-kuti']
 
 for artist in artists:
-    if artist in os.listdir('week04/artists/'):
+    if artist in os.listdir('artists/'):
         None
     else:
         download_lyrics_html(artist)
