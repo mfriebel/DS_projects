@@ -1,8 +1,8 @@
 -- categories table
-DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS categories CASCADE;
 
 CREATE TABLE categories (
-    categoryID SERIAL PRIMARY KEY NOT NULL,
+    categoryID SERIAL PRIMARY KEY,
     categoryName VARCHAR(30),    --characters up to lenght given in ()
     description VARCHAR(100),    
     picture BYTEA
@@ -14,11 +14,11 @@ DELIMITER ','
 NULL AS 'NULL'
 CSV HEADER;
 
-DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS customers CASCADE;
 
 -- customers table
 CREATE TABLE customers (
-    customerID VARCHAR(5) PRIMARY KEY NOT NULL,
+    customerID VARCHAR(5) PRIMARY KEY,
     companyName VARCHAR(50) NOT NULL,    
     contactName VARCHAR(50),    
     contactTitle VARCHAR(30),
@@ -39,11 +39,11 @@ CSV HEADER;
 
 -- employees table
 
-DROP TABLE IF EXISTS employees;
+DROP TABLE IF EXISTS employees CASCADE;
 
 CREATE TABLE employees (
-    employeeID SERIAL PRIMARY KEY NOT NULL,
-    lastName VARCHAR(30) NOT NULL,    
+    employeeID SERIAL PRIMARY KEY,
+    lastName VARCHAR(30),    
     firstName VARCHAR(30),    
     title VARCHAR(30),
     titleOfCourtesy VARCHAR(10),
@@ -69,13 +69,13 @@ DELIMITER ','
 NULL AS 'NULL'
 CSV HEADER;
 
--- employees_terretories table
+-- employees_terretories table - many to many connecting table
 
 DROP TABLE IF EXISTS employee_territories;
 
 CREATE TABLE employee_territories (
-    employeeID SERIAL NOT NULL,
-    territoryID INTEGER NOT NULL  
+    employeeID INTEGER,
+    territoryID INTEGER  
 );
 
 COPY employee_territories(employeeID, territoryID)
@@ -84,77 +84,12 @@ DELIMITER ','
 NULL AS 'NULL'
 CSV HEADER;
 
--- products table
-DROP TABLE IF EXISTS products;
-
-CREATE TABLE products (
-    productID SERIAL PRIMARY KEY NOT NULL,
-    productName VARCHAR(50) NOT NULL,    
-    supplierID INTEGER NOT NULL,    
-    categoryID INTEGER NOT NULL,
-    quantityPerUnit VARCHAR(50),
-    unitPrice REAL,
-    unitInStock INTEGER,
-    unitsOnOrder INTEGER,
-    reorderLevel INTEGER,
-    discontinued INTEGER
-);
-
-COPY products(productID, productName, supplierID, categoryID, quantityPerUnit, unitPrice, unitInStock, unitsOnOrder, reorderLevel, discontinued)
-FROM '/Users/marf/spiced_projects/a-star-anise-student-code/week06/data/products.csv'
-DELIMITER ','
-NULL AS 'NULL'
-CSV HEADER;
-
--- orders table
-DROP TABLE IF EXISTS orders;
-
-CREATE TABLE orders (
-    orderID SERIAL PRIMARY KEY NOT NULL,
-    customerID VARCHAR(5) NOT NULL,    
-    employeeID SMALLINT NOT NULL,    
-    orderDate TIMESTAMP,
-    requiredDate TIMESTAMP,
-    shippedDate TIMESTAMP,
-    shipVia SMALLINT,
-    freight REAL,
-    shipName VARCHAR(100),
-    shipAddress VARCHAR(100),
-    shipCity VARCHAR(20),
-    shipRegion VARCHAR(30),
-    shipPostalCode VARCHAR(10),
-    shipCountry VARCHAR(30) 
-);
-
-COPY orders(orderID, customerID, employeeID, orderDate, requiredDate, shippedDate, shipVia, freight, shipName, shipAddress, shipCity, shipRegion, shipPostalCode, shipCountry)
-FROM '/Users/marf/spiced_projects/a-star-anise-student-code/week06/data/orders.csv'
-DELIMITER ','
-NULL AS 'NULL'
-CSV HEADER;
-
--- order_details table
-DROP TABLE IF EXISTS order_details;
-
-CREATE TABLE order_details (
-    orderID SERIAL NOT NULL,
-    productID INTEGER NOT NULL,    
-    unitPrice REAL,    
-    quantity INTEGER,
-    discount REAL
-);
-
-COPY order_details(orderID, productID, unitPrice, quantity, discount)
-FROM '/Users/marf/spiced_projects/a-star-anise-student-code/week06/data/order_details.csv'
-DELIMITER ','
-NULL AS 'NULL'
-CSV HEADER;
-
 -- regions table
 
-DROP TABLE IF EXISTS regions;
+DROP TABLE IF EXISTS regions CASCADE;
 
 CREATE TABLE regions (
-    regionID SERIAL NOT NULL,
+    regionID SERIAL UNIQUE,
     regionDescription VARCHAR(20)  
 );
 
@@ -170,7 +105,7 @@ CSV HEADER;
 DROP TABLE IF EXISTS shippers;
 
 CREATE TABLE shippers (
-    shipperID SERIAL NOT NULL,
+    shipperID SERIAL,
     companyName VARCHAR(100),    
     phone VARCHAR(50)
 );
@@ -183,10 +118,10 @@ CSV HEADER;
 
 -- suppliers table
 
-DROP TABLE IF EXISTS suppliers;
+DROP TABLE IF EXISTS suppliers CASCADE;
 
 CREATE TABLE suppliers (
-    supplierID SERIAL NOT NULL,
+    supplierID SERIAL UNIQUE,
     companyName VARCHAR(100) NOT NULL,    
     contactName VARCHAR(50),
     contactTitle VARCHAR(30),
@@ -206,14 +141,93 @@ DELIMITER ','
 NULL AS 'NULL'
 CSV HEADER;
 
+
+-- products table
+DROP TABLE IF EXISTS products CASCADE;
+
+CREATE TABLE products (
+    productID SERIAL PRIMARY KEY,
+    productName VARCHAR(50) NOT NULL,    
+    supplierID INTEGER NOT NULL,    
+    categoryID INTEGER NOT NULL,
+    quantityPerUnit VARCHAR(50),
+    unitPrice REAL,
+    unitInStock INTEGER,
+    unitsOnOrder INTEGER,
+    reorderLevel INTEGER,
+    discontinued INTEGER,
+
+    FOREIGN KEY(supplierID) REFERENCES suppliers(supplierID) ON DELETE CASCADE,
+    FOREIGN KEY(categoryID) REFERENCES categories(categoryID) ON DELETE CASCADE
+);
+
+COPY products(productID, productName, supplierID, categoryID, quantityPerUnit, unitPrice, unitInStock, unitsOnOrder, reorderLevel, discontinued)
+FROM '/Users/marf/spiced_projects/a-star-anise-student-code/week06/data/products.csv'
+DELIMITER ','
+NULL AS 'NULL'
+CSV HEADER;
+
+-- orders table
+DROP TABLE IF EXISTS orders CASCADE;
+
+CREATE TABLE orders (
+    orderID SERIAL UNIQUE PRIMARY KEY,
+    customerID VARCHAR(5) NOT NULL,    
+    employeeID SMALLINT NOT NULL,    
+    orderDate TIMESTAMP,
+    requiredDate TIMESTAMP,
+    shippedDate TIMESTAMP,
+    shipVia SMALLINT,
+    freight REAL,
+    shipName VARCHAR(100),
+    shipAddress VARCHAR(100),
+    shipCity VARCHAR(20),
+    shipRegion VARCHAR(30),
+    shipPostalCode VARCHAR(10),
+    shipCountry VARCHAR(30), 
+
+    FOREIGN KEY(customerID) REFERENCES customers(customerID) ON DELETE CASCADE,
+    FOREIGN KEY(employeeID) REFERENCES employees(employeeID) ON DELETE CASCADE
+);
+
+COPY orders(orderID, customerID, employeeID, orderDate, requiredDate, shippedDate, shipVia, freight, shipName, shipAddress, shipCity, shipRegion, shipPostalCode, shipCountry)
+FROM '/Users/marf/spiced_projects/a-star-anise-student-code/week06/data/orders.csv'
+DELIMITER ','
+NULL AS 'NULL'
+CSV HEADER;
+
+-- order_details table
+DROP TABLE IF EXISTS order_details;
+
+CREATE TABLE order_details (
+    orderID INTEGER NOT NULL,
+    productID INTEGER NOT NULL,    
+    unitPrice REAL,    
+    quantity INTEGER,
+    discount REAL,
+
+    FOREIGN KEY(orderID) REFERENCES orders(orderID),
+    FOREIGN KEY(productID) REFERENCES products(productID) ON DELETE CASCADE
+);
+
+COPY order_details(orderID, productID, unitPrice, quantity, discount)
+FROM '/Users/marf/spiced_projects/a-star-anise-student-code/week06/data/order_details.csv'
+DELIMITER ','
+NULL AS 'NULL'
+CSV HEADER;
+
 -- territories table
 
 DROP TABLE IF EXISTS territories;
 
 CREATE TABLE territories (
-    territoryID INTEGER PRIMARY KEY NOT NULL,
+    territoryID INTEGER PRIMARY KEY,
     territoryDescription VARCHAR(30),
-    regionID INTEGER  
+    regionID INTEGER,
+
+    FOREIGN KEY(regionID) REFERENCES regions(regionID)  
+
+
 );
 
 COPY territories(territoryID, territoryDescription, regionID)
