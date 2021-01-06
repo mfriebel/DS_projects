@@ -28,9 +28,45 @@ SELECT productid, productname FROM products WHERE discontinued=1;
 SELECT discontinued, COUNT(discontinued) AS count_products FROM products GROUP BY discontinued;
 
 -- 10. Find products with less units in stock than the quantity on order.
-
+SELECT products.productid AS product_id, 
+products.productname AS product_name, 
+products.unitinstock AS units_in_stock, 
+order_details.quantity AS quantity_on_order 
+FROM products 
+INNER JOIN order_details 
+ON products.productid = order_details.productid 
+WHERE products.unitinstock < order_details.quantity;
 
 -- 11. Find the customer who had the highest order amount
+SELECT customers.customerid, customers.companyname, COUNT(customers.customerid) AS order_count
+FROM customers 
+INNER JOIN orders 
+ON customers.customerid = orders.customerid 
+GROUP BY customers.customerid
+ORDER BY order_count DESC
+LIMIT 1;
+
 -- 12. Get orders for a given employee and the according customer
+SELECT employees.firstname AS employee_firstname, employees.lastname AS employee_lastname, customers.companyname, *
+FROM orders 
+INNER JOIN customers
+ON customers.customerid = orders.customerid 
+INNER JOIN employees
+ON employees.employeeid = orders.employeeid
+WHERE orders.employeeid = 1 AND orders.customerid LIKE 'SEVES';
+
 -- 13. Find the hiring age of each employee
+SELECT employeeid, lastname, firstname, CURRENT_DATE - hiredate AS hiring_age FROM employees; -- in days 
+SELECT employeeid, lastname, firstname, DATE_PART('year', CURRENT_DATE) - DATE_PART('year', hiredate) AS hiring_age FROM employees; -- in years
+
 -- 14. Create views and/or named queries for some of these queries
+
+
+-- Calculate the percentage of a product on the total number of ordered products
+CREATE VIEW perc_order_quant AS 
+SELECT productid, ROUND(SUM(quantity) * 100.0 / (SELECT SUM(quantity) FROM order_details), 2) 
+AS perc_on_total_quantity 
+FROM order_details 
+GROUP BY productid;
+
+SELECT SUM(perc_on_total_quantity) FROM perc_order_quant;
