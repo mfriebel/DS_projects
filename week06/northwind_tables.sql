@@ -235,3 +235,11 @@ FROM '/Users/marf/spiced_projects/a-star-anise-student-code/week06/data/territor
 DELIMITER ','
 NULL AS 'NULL'
 CSV HEADER;
+
+-- import to remote database from CSV
+
+psql \
+    -h a-star-anise-db.cgn1yvegh1gq.eu-central-1.rds.amazonaws.com \
+    -d matthias \
+    -U postgres \
+    -c "\copy country_code (country, alpha2_code, alpha3_code, numeric_code, latitude, longitude) from '/Users/marf/spiced_projects/a-star-anise-student-code/week06/data/country_code.csv' with delimiter as ',' csv header"
