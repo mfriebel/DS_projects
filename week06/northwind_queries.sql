@@ -61,6 +61,13 @@ SELECT employeeid, lastname, firstname, DATE_PART('year', CURRENT_DATE) - DATE_P
 
 -- 14. Create views and/or named queries for some of these queries
 
+CREATE VIEW join_prod_categ_ordet AS 
+SELECT products.productid, products.productname, categories.categoryid, categories.categoryname, order_details.unitprice, order_details.quantity, order_details.discount
+FROM categories
+INNER JOIN products
+ON categories.categoryid = products.categoryid
+INNER JOIN order_details
+ON order_details.productid = products.productid;
 
 -- Calculate the percentage of a product on the total number of ordered products
 CREATE VIEW perc_order_quant AS 
@@ -70,3 +77,14 @@ FROM order_details
 GROUP BY productid;
 
 SELECT SUM(perc_on_total_quantity) FROM perc_order_quant;
+
+-- Which product category is selling best in which country?
+SELECT categories.categoryname, orders.shipcountry, SUM(order_details.quantity * order_details.unitprice) AS turnover FROM categories
+INNER JOIN products
+ON categories.categoryid = products.categoryid
+INNER JOIN order_details
+ON order_details.productid = products.productid
+INNER JOIN orders
+ON order_details.orderid = orders.orderid
+GROUP BY categories.categoryname, orders.shipcountry
+ORDER BY orders.shipcountry, turnover DESC, categories.categoryname;
