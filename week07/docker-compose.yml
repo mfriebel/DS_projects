@@ -1,0 +1,55 @@
+version: '3'
+services:
+
+
+  # 1. Container: Tweet Collector
+  tweet_collector:
+    container_name: tweety
+    build: tweety/
+    image: tweety_image
+    volumes:
+    - ./tweety/:/app
+    depends_on:
+    - mongodb
+    environment:
+    - API_KEY=${TWITTER_API_KEY}
+    - API_SECRET=${TWITTER_API_SECRET}
+    - ACCESS_TOKEN=${TWITTER_ACCESS_TOKEN} 
+    - ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
+
+  
+  # 2. Container: MongoDB
+  mongodb:
+    container_name: mongodb
+    image: mongo
+    ports:
+    - 27017:27017  
+
+  # 3. Container: ETL-Job
+  etl_job:
+    container_name: etl
+    build: etl_job/
+    image: etl_image
+    volumes: 
+    - ./etl_job/:/app
+    depends_on: 
+    - mongodb
+    - postgres_db
+    environment:
+    - POSTGRES_USER=${POSTGRES_USER}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_DB=${POSTGRES_DB}
+
+  # 4. Container: Postgres_DB 
+  postgres_db:
+    container_name: post_db
+    image: postgres
+    ports:
+    - 5555:5432
+    environment:
+    - POSTGRES_USER=${POSTGRES_USER}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_DB=${POSTGRES_DB}
+
+
+  # 5. Container: Slackbot
