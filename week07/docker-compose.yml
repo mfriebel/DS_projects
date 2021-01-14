@@ -53,3 +53,16 @@ services:
 
 
   # 5. Container: Slackbot
+  slackbot:
+    container_name: slackbot
+    build: slackbot/
+    image: slackbot_image
+    volumes:
+    - ./slackbot/:/app
+    depends_on:
+    - postgres_db
+    environment:
+    - WEBHOOK=${SLACK_WEBHOOK}
+    - POSTGRES_USER=${POSTGRES_USER}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_DB=${POSTGRES_DB}
