@@ -13,7 +13,6 @@ DB = os.getenv('POSTGRES_DB')
 webhook_url = os.getenv('WEBHOOK')
 
 # Connect to Postgres DB 
-#pg = create_engine(f'postgres://postgres:3455@post_db:5432/post_etl', echo=True)
 pg = create_engine(f'postgres://{USER}:{PW}@{HOST}:5432/{DB}', echo=True)
 
 for i in range(0, 1):

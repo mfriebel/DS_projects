@@ -40,6 +40,7 @@ class TwitterListener(StreamListener):
         t = json.loads(data) #t is just a regular python dictionary.
 
         tweet = {
+        'timestamp' : t['timestamp_ms'],
         'time_created': t['created_at'],
         'text': t['text'],
         'username': t['user']['screen_name'],
@@ -61,4 +62,4 @@ if __name__ == '__main__':
     auth = authenticate()
     listener = TwitterListener()
     stream = Stream(auth, listener)
-    stream.filter(track=['berlin'], languages=['en'])
+    stream.filter(track=['vaccine'], languages=['en'])

@@ -41,14 +41,26 @@ pg.execute('''
 ''')
 
 # Insert data from MongoDB to Postgres DB
-entries = db.tweets.find()
 
-for e in entries:
-    time = e['time_created']
-    text = e['text']
-    username = e['username']
-    followers = e['followers_count']
-    sentiment = s.polarity_scores(clean_text(e['text']))
-    score = sentiment['compound']
-    query = "INSERT INTO tweets VALUES (%s, %s, %s, %s, %s);"
-    pg.execute(query, (time, text, username, followers, score))
+timestamp = None
+
+while True:
+    # Populate postgres_db every 10s with new values by selecting only entries which hasn't been added to db
+    if not timestamp:
+        entries = db.tweets.find()
+    else:
+        entries = db.tweets.find({"timestamp" :{"$gt" : timestamp}})
+    
+    for e in entries:
+        timestamp = e['timestamp']
+        time_created = e['time_created']
+        text = e['text']
+        username = e['username']
+        followers = e['followers_count']
+        sentiment = s.polarity_scores(clean_text(e['text']))
+        score = sentiment['compound']
+        ## Query check for duplicates according to time_created
+        query = """INSERT INTO tweets(time_created, text, username, followers, sentiment) 
+                    SELECT %s, %s, %s, %s, %s WHERE NOT EXISTS (SELECT * FROM tweets WHERE tweets.time_created = %s)"""
+        pg.execute(query, (time_created, text, username, followers, score, time_created))
+    time.sleep(10)
