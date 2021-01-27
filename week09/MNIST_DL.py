@@ -23,12 +23,12 @@ y_train = to_categorical(y_train, 10)
 m = Sequential([
     # 1st hidden layer
     Dense(units=50, input_shape=(784,)),
-    #Dropout(0.2),
+    Dropout(0.2),
     ELU(),
     BatchNormalization(),
     # 2nd hidden layer
     Dense(units=50),
-    #Dropout(0.5),
+    Dropout(0.5),
     ELU(),
     BatchNormalization(),
     # 3rd hidden layer
@@ -52,7 +52,7 @@ m = Sequential([
 ])
 
 # Compile the model for running in C+
-callback = EarlyStopping(monitor='val_loss', patience=3)
+callback = EarlyStopping(monitor='val_loss', patience=5)
 m.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
 #%%
@@ -61,12 +61,21 @@ h = m.fit(X_train, y_train, epochs=100, batch_size=1000, callbacks=[callback], v
 
 #%%
 # Show learning rate
-plt.plot(h.history['loss'])
-plt.plot(h.history['val_loss'])
+plt.plot(h.history['loss'], label='training')
+plt.plot(h.history['val_loss'], label='validation')
 plt.title('Learning curve')
 plt.ylabel('Loss')
 plt.xlabel('epochs')
+plt.legend()
+plt.show()
 
+plt.plot(h.history['acc'], label='training')
+plt.plot(h.history['val_acc'], label='validation')
+plt.title('Learning curve')
+plt.ylabel('Accuracy')
+plt.xlabel('epochs')
+plt.legend()
+plt.show()
 #%%
 # Predict 
 X_test = X_test.reshape(10000, -1)
