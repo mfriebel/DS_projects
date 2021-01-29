@@ -28,7 +28,7 @@ m = Sequential([
     BatchNormalization(),
     # 2nd hidden layer
     Dense(units=50),
-    Dropout(0.5),
+    #Dropout(0.5),
     ELU(),
     BatchNormalization(),
     # 3rd hidden layer
@@ -43,7 +43,7 @@ m = Sequential([
     BatchNormalization(),
     # 5th hidden layer
     Dense(units=50),
-    #Dropout(0.5),
+    Dropout(0.3),
     ELU(),
     BatchNormalization(),
     # output layer
@@ -54,7 +54,7 @@ m = Sequential([
 # Compile the model for running in C+
 callback = EarlyStopping(monitor='val_loss', patience=5)
 m.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
+m.summary()
 #%%
 # Train the model
 h = m.fit(X_train, y_train, epochs=100, batch_size=1000, callbacks=[callback], validation_split=0.2)
@@ -69,13 +69,17 @@ plt.xlabel('epochs')
 plt.legend()
 plt.show()
 
-plt.plot(h.history['acc'], label='training')
-plt.plot(h.history['val_acc'], label='validation')
+plt.plot(h.history['accuracy'], label='training')
+plt.plot(h.history['val_accuracy'], label='validation')
 plt.title('Learning curve')
 plt.ylabel('Accuracy')
 plt.xlabel('epochs')
 plt.legend()
 plt.show()
+
+#%%
+# Plot weight
+pd.DataFrame(m.layers[0].get_weights()[0].reshape(-1,)).plot(kind = "hist")
 #%%
 # Predict 
 X_test = X_test.reshape(10000, -1)
