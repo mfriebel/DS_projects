@@ -19,8 +19,8 @@ ratings_matrix = ratings_df.pivot(index='userId', columns='movieId', values='rat
 # fill by movie average
 movie_average = ratings_df.groupby('movieId')['rating'].mean()
 R = ratings_matrix.fillna(value=movie_average, axis=0)
-
-nmf = NMF(n_components=30, max_iter=1000)
+#%%
+nmf = NMF(n_components=50, max_iter=1000)
 nmf.fit(R)
 # Movie_Id feature matrix
 Q = nmf.components_
