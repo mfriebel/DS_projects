@@ -2,7 +2,7 @@ from random import shuffle, choices
 import numpy as np
 import pandas as pd
 import pickle
-from fuzzywuzzy import fuzz
+from cosim import get_ratings
 
 def get_movies_for_rating(movie_dict, num=5):
     all_keys = list(movie_dict.keys())
@@ -11,7 +11,25 @@ def get_movies_for_rating(movie_dict, num=5):
 
     return  movies_keys, movies_values
 
-def get_movie_recommendation(model, movie_average, movie_dictionary, input_dict):
+def get_all_movies(movie_dict):
+    movies_values = [movie_dict[key] for key in movie_dict.keys()]
+    return  movies_values
+
+def get_invers_movie_dict(movie_dict):
+    movie_id_dict = {v:k for k, v in movie_dict.items()}
+    return movie_id_dict
+
+def map_args_to_input_dict(html_arg, movie_dict):
+    inv_dict = get_invers_movie_dict(movie_dict)
+    html_values = list(html_arg.values())
+    selected_movies_dict = {}
+    for i in range(len(html_values)):
+        if i % 2 == 0:
+            movie_id = inv_dict[html_values[i]]
+            selected_movies_dict[movie_id] = float(html_values[i+1])
+    return selected_movies_dict
+
+def get_movie_recommendation_nmf(model, movie_average, movie_dictionary, input_dict):
     #%%
     new_user_input = input_dict
     new_user = pd.DataFrame(new_user_input, index=['new_user'],columns=movie_average.index)
@@ -26,8 +44,15 @@ def get_movie_recommendation(model, movie_average, movie_dictionary, input_dict)
     top_movies = [movie_dictionary[movie] for movie in top20.index]
 
     print('My movie recommendation:')
-    shuffle(top_movies)
+    #shuffle(top_movies)
     return top_movies[:5]
+
+def get_movie_recommendation_cosim(rat_df, input_dict, movie_dict):
+    R = rat_df.pivot(index='userId', columns='movieId', values='rating')
+    recommendations = get_ratings(R, input_dict)
+    recommendations = recommendations[:5]
+    recommendations_list = [movie_dict[int(tupl[0])] for tupl in recommendations]
+    return recommendations_list
 
 if __name__ == "__main__":
     with open('nmf.pickle', 'rb') as f:
