@@ -47,16 +47,18 @@ def get_ratings(R, user):
 
     return recommendation
 
-#%%
-# Read 100k Movie-Lens Dataset
-ratings_df = pd.read_csv("./ml-latest-small/ratings.csv")
-movies_df = pd.read_csv("./ml-latest-small/movies.csv")
 
-R = ratings_df.pivot(index='userId', columns='movieId', values='rating')
+if __name__ == "__main__":
+    #%%
+    # Read 100k Movie-Lens Dataset
+    ratings_df = pd.read_csv("./ml-latest-small/ratings.csv")
+    movies_df = pd.read_csv("./ml-latest-small/movies.csv")
 
-#%%
-input_dict = {20:5.0, 1:3.4, 50:4.5,  3001:3.5, 40123:5.0}
-new_user = pd.DataFrame(input_dict, index=['new_user'],columns=R.columns)
+    R = ratings_df.pivot(index='userId', columns='movieId', values='rating')
 
-#%%
-get_ratings(R, input_dict)
+    #%%
+    input_dict = {20:5.0, 1:3.4, 50:4.5,  3001:3.5, 40123:5.0}
+    new_user = pd.DataFrame(input_dict, index=['new_user'],columns=R.columns)
+
+    #%%
+    get_ratings(R, input_dict)
