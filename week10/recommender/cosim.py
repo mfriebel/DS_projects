@@ -5,18 +5,29 @@ import seaborn as sns
 import pickle
 from sklearn.impute import KNNImputer
 from sklearn.metrics.pairwise import cosine_similarity
-#%%
+
 def create_cosim(R_df):
+    """Creates DataFrame with Cosine Similarities of users"""
     # Impute missing values
     imputer = KNNImputer(n_neighbors=3)
     R_imputed = pd.DataFrame(imputer.fit_transform(R_df), index=R_df.index, columns=R_df.columns)
     
     # Calculate cosinus similarities
     cosim = pd.DataFrame(cosine_similarity(R_imputed), index=R_imputed.index, columns=R_imputed.index)
-
     return cosim
 
 def get_ratings(R, user):
+    """Return movies with high ratings based on cosine 
+    similarities of user_input and database users
+    
+        Parameters:  
+            R (pandas.DataFrame) : DataFrame with user to movie_id matrix
+            user (dict) : Dictionary of {movie_id : rating} 
+    
+        Return: 
+            recommendation (list) : sorted list of 20 movies recommendations based on user similarities
+    """
+    
     R = R.copy()
     user_index = len(R.index)+1
 
@@ -47,6 +58,7 @@ def get_ratings(R, user):
 
     return recommendation
 
+# TODO Filter recommendations by preferred genres 
 
 if __name__ == "__main__":
     #%%
@@ -61,4 +73,4 @@ if __name__ == "__main__":
     new_user = pd.DataFrame(input_dict, index=['new_user'],columns=R.columns)
 
     #%%
-    get_ratings(R, input_dict)
+    print(get_ratings(R, input_dict))
