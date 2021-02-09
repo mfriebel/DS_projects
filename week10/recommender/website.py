@@ -33,7 +33,9 @@ def get_movie():
     selected_movies = recommender.map_args_to_input_dict(html_from_data, movie_dict)
     print(selected_movies)
     # Gets movie recommendations based on cosinus similarities
-    movie_rec = recommender.get_movie_recommendation_cosim(ratings_df, selected_movies, movie_dict)
+    #movie_rec = recommender.get_movie_recommendation_cosim(ratings_df, selected_movies, movie_dict)
+    # Gets movie recommendations based on NMF
+    movie_rec = recommender.get_movie_recommendation_nmf(nmf, movie_avg, movie_dict, selected_movies)
     return render_template('result.html', movies=movie_rec)
 
 @app.route('/')
