@@ -70,7 +70,8 @@ def get_movie_recommendation_nmf(model, movie_average, movie_dictionary, input_d
     # Create new user with same features as used in model
     new_user = pd.DataFrame(input_dict, index=['new_user'],columns=movie_average.index)
     # Impute missing values with movie average
-    new_user = new_user.fillna(value=movie_average, axis=0)
+    #new_user = new_user.fillna(value=movie_average, axis=0)
+    new_user.loc['new_user'] = np.where(new_user.loc['new_user'].isna(), movie_average, new_user.loc['new_user'])
     # Get hidden features for movie_id based on ratings in model
     Q = model.components_
     # Create hidden features for new user based on rating from user input
@@ -82,12 +83,12 @@ def get_movie_recommendation_nmf(model, movie_average, movie_dictionary, input_d
     recommendation = user_R.drop(columns=input_dict.keys())
     # Select the top 20 movies based highest ratings
     top20 = recommendation.transpose().sort_values(by='new_user', axis=0, ascending=False).head(20)
-
+    print(top20.tail(4))
     # Create list with 20 movie names by looping through top20 and mapping movie_id to movie_name
     top_movies = [movie_dictionary[movie] for movie in top20.index]
 
     #shuffle(top_movies)
-    return top_movies[:5]
+    return top_movies[:10]
 
 def get_movie_recommendation_cosim(rat_df, input_dict, movie_dict):
     """Get movie recommendation based on cosinus similarities
@@ -107,4 +108,4 @@ def get_movie_recommendation_cosim(rat_df, input_dict, movie_dict):
     recommendations = get_ratings(R, input_dict)
     #  Create list with 20 movie names by looping through top20 and mapping movie_id(tupl[0]) to movie_name
     recommendations_list = [movie_dict[int(tupl[0])] for tupl in recommendations]
-    return recommendations_list[:5]
+    return recommendations_list[:10]
