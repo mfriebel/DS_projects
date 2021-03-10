@@ -134,3 +134,9 @@ dmypy.json
 #Large files 
 .jar
 .csv
+
+# config file for project week07
+config.py
+
+#VS code configuration files
+.vscode
