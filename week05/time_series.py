@@ -124,8 +124,8 @@ plt.show()
 sns.lineplot(x=train.loc['2000'].index, y=(train['temp'].loc['2000'] - outcome_arima.loc['2000']), label = 'Residuals ARIMA')
 plt.show()
 
-
+#TODO: look closer at residual, Standard-Dev, Verteilung, Plot über die Monate (mehr Schwankung in den Sommermonaten?)
 
 '''Save Manual AR Model for testing'''
-pickle.dump(m_season, open('seasonal_model.pickle', 'wb'))
-pickle.dump(m_full, open('full_model.pickle', 'wb'))
+pickle.dump(m_season, open('data/seasonal_model.pickle', 'wb'))
+pickle.dump(m_full, open('data/full_model.pickle', 'wb'))
