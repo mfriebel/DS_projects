@@ -142,4 +142,4 @@ config.py
 .vscode
 
 # Pickle files
-.pickle
+*.pickle
